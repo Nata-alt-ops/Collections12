@@ -1,0 +1,80 @@
+USE [Collections_item]
+GO
+
+/****** Объект:  Table [dbo].[collections]    Дата создания скрипта: 01.06.2026 11:55:14 ******/ 
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[collections](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[name] [varchar](max) NULL,
+	[description] [varchar](max) NULL,
+	[custom_fields] [nvarchar](max) NULL,
+	[owner_id] [int] NULL,
+	[image_path] [nvarchar](500) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+/****** Объект:  Table [dbo].[items]    Дата создания скрипта: 01.06.2026 11:55:14 ******/ 
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[items](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[title] [varchar](max) NULL,
+	[image_path] [varchar](max) NULL,
+	[custom_values] [nvarchar](max) NULL,
+	[collection_id] [int] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+/****** Объект:  Table [dbo].[users]    Дата создания скрипта: 01.06.2026 11:55:14 ******/ 
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[users](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[email] [nvarchar](255) NOT NULL,
+	[username] [nvarchar](100) NOT NULL,
+	[hashed_password] [nvarchar](255) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[username] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[collections]  WITH CHECK ADD FOREIGN KEY([owner_id])
+REFERENCES [dbo].[users] ([id])
+GO
+
+ALTER TABLE [dbo].[items]  WITH CHECK ADD FOREIGN KEY([collection_id])
+REFERENCES [dbo].[collections] ([id])
+GO
+
+

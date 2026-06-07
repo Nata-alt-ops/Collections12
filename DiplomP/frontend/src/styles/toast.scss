@@ -1,0 +1,38 @@
+@import './variables';
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: $border-radius-md;
+  background: $white;
+  box-shadow: $shadow-lg;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+  
+  &.toast-success { border-left: 4px solid $success; }
+  &.toast-error { border-left: 4px solid $danger; }
+  &.toast-info { border-left: 4px solid $primary; }
+  
+  button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

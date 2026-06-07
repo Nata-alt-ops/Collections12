@@ -1,0 +1,24 @@
+@import './variables';
+@import './mixins';
+
+.back-btn {
+  background: #1A73E8;
+  color: white;
+  backdrop-filter: blur(5px);
+  border: none;
+  padding: 10px 20px;
+  border-radius: $border-radius-md;
+  color: $white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover {
+    background: #1661C4;
+    transform: translateX(-4px);
+  }
+}
