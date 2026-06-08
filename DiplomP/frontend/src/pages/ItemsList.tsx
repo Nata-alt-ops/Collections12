@@ -28,12 +28,21 @@ export default function ItemsList() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+    const [filters, setFilters] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (collectionId) {
             getCollections().then(res => {
                 const col = res.data.find(c => c.id === Number(collectionId));
                 setCollection(col || null);
+                // Инициализация фильтров для кастомных полей
+                if (col?.custom_fields) {
+                    const initialFilters: Record<string, string> = {};
+                    col.custom_fields.forEach(field => {
+                        initialFilters[field.name] = '';
+                    });
+                    setFilters(initialFilters);
+                }
             });
             loadItems();
         }
@@ -54,14 +63,41 @@ export default function ItemsList() {
         }
     };
 
+    // Применение всех фильтров
+    const applyFilters = (searchValue: string, currentFilters: Record<string, string>) => {
+        let filtered = [...items];
+        
+        // Поиск по названию
+        if (searchValue) {
+            filtered = filtered.filter(item => 
+                item.title.toLowerCase().includes(searchValue.toLowerCase())
+            );
+        }
+        
+        // Фильтрация по кастомным полям
+        for (const [field, filterValue] of Object.entries(currentFilters)) {
+            if (filterValue) {
+                filtered = filtered.filter(item => {
+                    const val = item.custom_values[field];
+                    return val && val.toString().toLowerCase().includes(filterValue.toLowerCase());
+                });
+            }
+        }
+        
+        setFilteredItems(filtered);
+        setPage(0);
+    };
+
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearch(value);
-        const filtered = items.filter(item => 
-            item.title.toLowerCase().includes(value.toLowerCase())
-        );
-        setFilteredItems(filtered);
-        setPage(0);
+        applyFilters(value, filters);
+    };
+
+    const handleFilterChange = (fieldName: string, value: string) => {
+        const newFilters = { ...filters, [fieldName]: value };
+        setFilters(newFilters);
+        applyFilters(search, newFilters);
     };
 
     const handleImageError = (itemId: number) => {
@@ -131,7 +167,7 @@ export default function ItemsList() {
                     </Box>
                 </Box>
 
-                {/* Поиск - используем slotProps для MUI v5 */}
+                {/* Поиск по названию */}
                 <TextField
                     placeholder="Поиск по названию..."
                     value={search}
@@ -147,6 +183,22 @@ export default function ItemsList() {
                         },
                     }}
                 />
+
+                {/* Фильтры по кастомным полям (автоматически создаются) */}
+                {collection?.custom_fields && collection.custom_fields.length > 0 && (
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                        {collection.custom_fields.map(field => (
+                            <TextField
+                                key={field.name}
+                                size="small"
+                                placeholder={`Фильтр по ${field.name}`}
+                                value={filters[field.name] || ''}
+                                onChange={(e) => handleFilterChange(field.name, e.target.value)}
+                                sx={{ bgcolor: 'white', borderRadius: 2, minWidth: 150 }}
+                            />
+                        ))}
+                    </Box>
+                )}
 
                 {/* Режим таблицы */}
                 {viewMode === 'table' ? (
@@ -226,7 +278,7 @@ export default function ItemsList() {
                         />
                     </TableContainer>
                 ) : (
-                    // Режим плитки - используем Grid2 с size
+                    // Режим плитки
                     <Grid container spacing={3}>
                         {paginatedItems.map(item => {
                             const imageUrl = getImageUrl(item.image_path);
